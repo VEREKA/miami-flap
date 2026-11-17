@@ -57,8 +57,13 @@ window.CONFIG = {
     { id: 'classic', name: 'CLASSIC PINK', stage: 1, pal: {} },
     { id: 'ocean',   name: 'OCEAN DRIVE',  stage: 2, pal: { P: '#35D6E0', p: '#1CA3B5' }, shades: true },
     { id: 'neon',    name: 'NEON NIGHT',   stage: 3, pal: { P: '#8A3BFF', p: '#5A1FC2', W: '#39F0FF', H: '#FFE27A', h: '#FF74B4' } },
-    { id: 'gold',    name: 'GOLD RUSH',    stage: 4, pal: { P: '#FFD447', p: '#D99A1E', W: '#FFF2B0' }, shades: true }
+    { id: 'gold',    name: 'GOLD RUSH',    stage: 4, pal: { P: '#FFD447', p: '#D99A1E', W: '#FFF2B0' }, shades: true },
+    // różowe futro na ramionach + kolczyk z dolarem (nawiązanie do billboardu kampanii); patch: [wiersz, kolumna, znaki]
+    { id: 'fur',     name: 'PINK FUR',     stage: 5, pal: { P: '#FF9AD0', p: '#E86FB4' }, patch: [[9, 10, 'K'], [10, 10, 'G'], [11, 11, 'UU'], [11, 15, 'U'], [12, 10, 'UuUUuUU']] }
   ],
+  // Przycisk „Pochwal się” na ekranie Game Over (obrazek z wynikiem do udostępnienia). shareUrl: adres dopisywany do tekstu.
+  share: true,
+  shareUrl: null,
   // Formularz: w wersji testowej nic nie jest wysyłane na serwer — dane lecą tylko przez postMessage do strony-rodzica.
   entryEndpoint: null
 };

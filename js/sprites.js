@@ -6,7 +6,7 @@
     E: '#3B2A4A', M: '#E8457F', P: '#FF74B4', p: '#D9488F', W: '#FFFFFF', C: '#39D5E6',
     c: '#1FA3C4', K: '#BFF4FA', G: '#3FBF6B', g: '#2A8F4E', F: '#C9F7D5', Y: '#FFD447',
     y: '#D99A1E', B: '#2F7D4F', b: '#1F5A39', D: '#8E86A6', d: '#6B6385', A: '#B9B2CC',
-    a: '#D9D4E6', T: '#9BE84A', t: '#5FAE22', R: '#FF4D6D', N: '#2B1B33', V: '#B14AED', r: '#E0243A', q: '#A8122A'
+    a: '#D9D4E6', T: '#9BE84A', t: '#5FAE22', R: '#FF4D6D', N: '#2B1B33', V: '#B14AED', U: '#FFEAF6', u: '#F7B8DA', r: '#E0243A', q: '#A8122A'
   };
   var M = {};
   M.girlA = [
@@ -73,8 +73,14 @@
       return row;
     });
   }
+  function withPatch(rows, patch) {
+    if (!patch) return rows;
+    rows = rows.slice();
+    patch.forEach(function (p) { var r = rows[p[0]]; rows[p[0]] = r.slice(0, p[1]) + p[2] + r.slice(p[1] + p[2].length); });
+    return rows;
+  }
   function buildSkin(skin) {
-    var a = skin.shades ? withShades(M.girlA) : M.girlA, b = skin.shades ? withShades(M.girlB) : M.girlB;
+    var a = withPatch(skin.shades ? withShades(M.girlA) : M.girlA, skin.patch), b = withPatch(skin.shades ? withShades(M.girlB) : M.girlB, skin.patch);
     return {
       frames: [build(a, skin.pal), build(b, skin.pal)],
       glowA: [build(a, null, '#3FF0FF'), build(b, null, '#3FF0FF')],

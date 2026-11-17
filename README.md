@@ -33,8 +33,10 @@ Link i QR do strony kampanii są wyłączone (`landingUrl: null`). Po ustawieniu
 ## Osadzanie w iframe
 
 ```html
-<iframe src="https://…/miami-flap/" width="360" height="640" style="border:0" allow="autoplay"></iframe>
+<iframe src="https://…/miami-flap/" width="360" height="640" style="border:0" allow="autoplay; web-share"></iframe>
 ```
+
+`web-share` jest potrzebne, żeby przycisk „Pochwal się” otwierał systemowe udostępnianie na telefonie (bez tego gra zapisze obrazek).
 
 Gra wysyła do strony-rodzica komunikaty `postMessage`:
 

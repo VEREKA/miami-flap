@@ -379,6 +379,7 @@
       K = k; canvasEl.width = W * k; canvasEl.height = H * k;
       ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingEnabled = false;
     },
+    showBanner: function (a, b, life) { banner = { a: a, b: b, life: life || 150, max: life || 150 }; },
     reset: function () { particles.length = 0; popups.length = 0; banner = null; shake = 0; flash = 0; setTheme(0, false); },
     // zdarzenia z symulacji → efekty
     onEvent: function (e, sim) {

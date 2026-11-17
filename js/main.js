@@ -16,6 +16,9 @@
   // ───────── stan ─────────
   var state = 'menu', sim = null, prevY = 0, tapQueued = false, last = 0, acc = 0, countdown = 0, dieTimer = 0, lastRun = null;
   var integ = null;
+  // podpowiedzi w pierwszej grze (krok symulacji → tekst); pokazywane na pasie promenady, znikają po pierwszym pełnym obejrzeniu
+  var tutorial = store.get('tut', '0') !== '1';
+  var TUTORIAL = { 15: ['TAPNIJ = LECISZ', 'KAŻDE TAPNIĘCIE TO SKOK W GÓRĘ'], 215: ['OMIJAJ DYM', 'DYM, PLOTKI I ZIEMIA KOŃCZĄ LOT'], 415: ['ZBIERAJ DIAMONDSY', '3 BUTELKI = MIAMI MODE', true] };
 
   function newIntegrity() {
     return { pauses: 0, stalls: 0, flags: {}, realMs: 0, lostMs: 0, winReal: 0, winSteps: 0, slowStreak: 0, perf0: performance.now(), date0: Date.now() };
@@ -44,6 +47,11 @@
     prevY = sim.y;
     Sim.step(sim, tapQueued);
     tapQueued = false;
+    if (tutorial && TUTORIAL[sim.step]) {
+      var h = TUTORIAL[sim.step];
+      Render.showBanner(h[0], h[1], 170);
+      if (h[2]) { tutorial = false; store.set('tut', 1); }
+    }
     for (var i = 0; i < sim.events.length; i++) {
       var e = sim.events[i];
       Render.onEvent(e, sim);
@@ -103,8 +111,9 @@
     if (unlocked.length) { $('over-unlock').textContent = 'Nowy skin: ' + unlocked.join(', ') + '!'; GameAudio.sfx('unlock'); }
     $('over-integrity').hidden = verified;
     if (!verified) $('over-integrity').textContent = 'Wynik niezweryfikowany (' + (flags.slow ? 'gra była spowolniona' : flags.pauses ? 'zbyt wiele pauz' : 'nieprawidłowy przebieg') + ') — nie liczy się do rekordu ani konkursu.';
-    $('btn-entry').disabled = !verified || sim.score === 0;
-    $('btn-entry').style.opacity = $('btn-entry').disabled ? 0.45 : 1;
+    var canEnter = verified && sim.score > 0;
+    $('btn-entry').hidden = !canEnter; $('over-cta').hidden = !canEnter; $('over-retry').hidden = canEnter;
+    $('btn-share').hidden = !(CONFIG.share && canEnter);
     show('scr-over');
     post({ type: 'miamiflap:gameover', score: sim.score, report: rep, integrity: integrity });
   }
@@ -182,12 +191,59 @@
     show('scr-form'); $('f-name').focus();
   });
   click('btn-form-back', function () { show('scr-over'); });
+  click('btn-share', shareResult);
   $('btn-sound').addEventListener('click', function () {
     GameAudio.unlock(); GameAudio.setMuted(!GameAudio.muted); syncSound();
   });
   function syncSound() {
     $('btn-sound').classList.toggle('off', GameAudio.muted);
     $('btn-sound').setAttribute('aria-label', GameAudio.muted ? 'Włącz dźwięk' : 'Wyłącz dźwięk');
+  }
+
+  // ───────── udostępnianie wyniku ─────────
+  function makeCard() {
+    var c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
+    var x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 1920);
+    g.addColorStop(0, '#3A1C6E'); g.addColorStop(1, '#1A1033'); x.fillStyle = g; x.fillRect(0, 0, 1080, 1920);
+    try {   // kadr z gry w tle (pomijany, gdy przeglądarka blokuje odczyt canvasu, np. przy otwarciu z dysku)
+      var tmp = document.createElement('canvas'); tmp.width = 1080; tmp.height = 1920;
+      var tx = tmp.getContext('2d'); tx.imageSmoothingEnabled = false; tx.drawImage($('game'), 0, 0, 1080, 1920); tx.getImageData(0, 0, 1, 1);
+      x.drawImage(tmp, 0, 0);
+      x.fillStyle = 'rgba(26,16,51,0.72)'; x.fillRect(0, 0, 1080, 1920);
+    } catch (e) {}
+    x.textAlign = 'center';
+    function txt(s, y, size, col, shadow) {
+      x.font = size + "px 'Jersey 15', monospace";
+      if (shadow) { x.fillStyle = shadow; x.fillText(s, 540 + size * 0.05, y + size * 0.05); }
+      x.fillStyle = col; x.fillText(s, 540, y);
+    }
+    txt(CONFIG.title, 330, 230, '#FF5FD2', '#1A1033');
+    txt('MÓJ WYNIK', 620, 110, '#E6DAFF');
+    txt(String(lastRun.report.score), 1040, 520, '#FFFFFF', '#FF2E88');
+    txt('ETAP ' + lastRun.report.stage + ' · BRAMKI: ' + lastRun.report.gates, 1190, 84, '#3FF0FF');
+    var sp = (Sprites.skins[skin] || Sprites.skins.classic).frames[0];
+    x.imageSmoothingEnabled = false; x.drawImage(sp, 540 - 132, 1260, 264, 264);
+    txt('POBIJESZ MNIE?', 1700, 150, '#FFF36B', '#1A1033');
+    if (CONFIG.shareUrl) txt(CONFIG.shareUrl.replace(/^https?:\/\//, ''), 1810, 70, '#FFFFFF');
+    return c;
+  }
+  function shareResult() {
+    if (!lastRun) return;
+    var go = function () {
+      makeCard().toBlob(function (blob) {
+        if (!blob) return;
+        var file = new File([blob], 'miami-flap-wynik.png', { type: 'image/png' });
+        var text = 'Mam ' + lastRun.report.score + ' pkt w ' + CONFIG.title + '! Pobijesz mnie?' + (CONFIG.shareUrl ? ' ' + CONFIG.shareUrl : '');
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], text: text }).catch(function () {});
+        } else {   // komputer / brak systemowego udostępniania: zapis obrazka
+          var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+          document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+          $('btn-share').textContent = 'ZAPISANO OBRAZEK'; setTimeout(function () { $('btn-share').textContent = 'POCHWAL SIĘ'; }, 2500);
+        }
+      }, 'image/png');
+    };
+    (document.fonts && document.fonts.load ? document.fonts.load("100px 'Jersey 15'") : Promise.resolve()).then(go, go);
   }
 
   // ───────── formularz ─────────
@@ -256,6 +312,6 @@
   })();
   syncSound();
   show('scr-start');
-  if (params.has('debug')) window.__mf = { get sim() { return sim; }, get state() { return state; }, get lastRun() { return lastRun; }, tap: tap, setStage: function (n) { maxStage = n; } };
+  if (params.has('debug')) window.__mf = { get sim() { return sim; }, get state() { return state; }, get lastRun() { return lastRun; }, tap: tap, setStage: function (n) { maxStage = n; }, card: function () { return makeCard().toDataURL(); } };
   requestAnimationFrame(function (now) { last = now; requestAnimationFrame(frame); });
 })();
