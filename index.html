@@ -21,14 +21,14 @@
   <!-- START -->
   <section id="scr-start" class="overlay">
     <h1 class="logo"><span>MIAMI</span><span class="logo2">FLAP</span></h1>
-    <p class="tag">Leć. Zbieraj.<br>Nie daj się plotkom.</p>
+    <p class="tag" id="tagline"></p>
     <div class="spacer"></div>
     <ul class="legend" aria-label="Punktacja">
       <li><img id="ico-dollar" alt="Dolar"><b>+1</b></li>
-      <li><img id="ico-prosecco" alt="Prosecco"><b>+3</b></li>
+      <li><img id="ico-prosecco" alt="Butelka"><b>+3</b></li>
       <li><img id="ico-diamond" alt="Diament"><b>+5</b></li>
     </ul>
-    <p class="hint">3 × prosecco = <b>MIAMI MODE</b><br>Dym i plotki kończą lot.</p>
+    <p class="hint">3 × <span id="bottle-name"></span> = <b>MIAMI MODE</b><br>Dym i plotki kończą lot.</p>
     <button id="btn-play" class="btn btn-primary">GRAJ</button>
     <button id="btn-skins" class="btn btn-ghost">SKINY</button>
     <div class="prize">
@@ -42,7 +42,7 @@
     <h2>SKINY</h2>
     <p class="sub">Odblokuj kolejne, docierając do nowych etapów.</p>
     <div id="skin-grid" class="skin-grid"></div>
-    <button id="btn-skins-back" class="btn btn-ghost">WSTECZ</button>
+    <button id="btn-skins-back" class="btn btn-ghost">WRÓĆ</button>
   </section>
 
   <!-- PAUZA -->
@@ -63,7 +63,7 @@
     <p id="over-integrity" class="warn" hidden></p>
     <div class="prize prize-cta">
       <p>Z tym wynikiem możesz powalczyć o <b id="over-prize"></b>.</p>
-      <button id="btn-entry" class="btn btn-primary">DODAJ WYNIK</button>
+      <button id="btn-entry" class="btn btn-primary">ZGŁOŚ WYNIK</button>
       <a id="qr-link" class="qr-link" target="_blank" rel="noopener">
         <canvas id="qr-canvas" width="25" height="25" aria-label="Kod QR do strony kampanii"></canvas>
         <span>Zeskanuj lub kliknij:<br><b id="qr-label"></b></span>
@@ -75,7 +75,7 @@
 
   <!-- FORMULARZ -->
   <section id="scr-form" class="overlay panel" hidden>
-    <h2>DODAJ WYNIK</h2>
+    <h2>ZGŁOŚ WYNIK</h2>
     <p class="sub">Twój wynik: <b id="form-score">0</b></p>
     <form id="entry-form" novalidate>
       <label for="f-name">Imię</label>
@@ -84,13 +84,13 @@
       <input id="f-email" name="email" type="email" autocomplete="email" maxlength="80" required>
       <label class="check"><input id="f-consent" type="checkbox" required><span>Akceptuję regulamin konkursu i zgadzam się na kontakt w sprawie nagrody.</span></label>
       <p id="form-error" class="warn" role="alert" hidden></p>
-      <button type="submit" class="btn btn-primary">BIORĘ UDZIAŁ</button>
+      <button type="submit" class="btn btn-primary">WYŚLIJ ZGŁOSZENIE</button>
     </form>
     <div id="form-done" hidden>
       <p class="record">DZIĘKI!</p>
       <p id="form-done-msg" class="sub"></p>
     </div>
-    <button id="btn-form-back" class="btn btn-ghost">WSTECZ</button>
+    <button id="btn-form-back" class="btn btn-ghost">WRÓĆ</button>
   </section>
 </main>
 <script src="js/config.js"></script>

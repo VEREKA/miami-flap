@@ -6,7 +6,7 @@
     E: '#3B2A4A', M: '#E8457F', P: '#FF74B4', p: '#D9488F', W: '#FFFFFF', C: '#39D5E6',
     c: '#1FA3C4', K: '#BFF4FA', G: '#3FBF6B', g: '#2A8F4E', F: '#C9F7D5', Y: '#FFD447',
     y: '#D99A1E', B: '#2F7D4F', b: '#1F5A39', D: '#8E86A6', d: '#6B6385', A: '#B9B2CC',
-    a: '#D9D4E6', T: '#9BE84A', t: '#5FAE22', R: '#FF4D6D', N: '#2B1B33', V: '#B14AED'
+    a: '#D9D4E6', T: '#9BE84A', t: '#5FAE22', R: '#FF4D6D', N: '#2B1B33', V: '#B14AED', r: '#E0243A', q: '#A8122A'
   };
   var M = {};
   M.girlA = [
@@ -24,18 +24,19 @@
     '..........OPPPPPPO......', '........OOPPPpPPPPOO....', '.......OPPPPpPPPpPPPO...', '........OOOSOOOSOOOO....',
     '..........OSO..OSO......', '.........OSO....OSO.....', '........OWWO....OWWO....', '.........OO......OO.....'];
   M.dollar = [
-    '................', '.OOOOOOOOOOOOOO.', 'OGGGGGGGGGGGGGGO', 'OGFFFFFFFFFFFFGO', 'OGFGGGGOOGGGGFGO', 'OGFGGGOFFOOGGFGO',
-    'OGFGGOFOOGGGGFGO', 'OGFGGGOFFOGGGFGO', 'OGFGGGGOOFOGGFGO', 'OGFGGOOFFOGGGFGO', 'OGFGGGGOOGGGGFGO', 'OGFFFFFFFFFFFFGO',
-    'OGGGGGGGGGGGGGGO', 'OggggggggggggggO', '.OOOOOOOOOOOOOO.', '................'];
+    '.OOOOOOOOOOOOOOOO.', 'OFFFFFFFFFFFFFFFFO', 'OFgFgFOOOOOOFgFgFO', 'OFgFFOFHHHHFOFFgFO', 'OFFFOFHHHHHHFOFFFO', 'OFFFOHHSESESHOFFFO',
+    'OFFFOHHSSSSSHOFFFO', 'OFFFOHHSSMSSHOFFFO', 'OFgFFOHHSSHHOFFgFO', 'OFgFgFOOOOOOFgFgFO', 'OFFFFFFFFFFFFFFFFO', '.OOOOOOOOOOOOOOOO.'];
   M.diamond = [
     '....OOOOOOOO....', '...OKKCCCCKKO...', '..OKWKCCCCKCCO..', '.OKWKCCCCCCKCCO.', 'OOOOOOOOOOOOOOOO', 'OCCKCCCCCCCCKccO',
     '.OCCKCCCCCCKccO.', '..OCCKCCCCKccO..', '...OCCKCCKccO...', '....OCCKKccO....', '.....OCCccO.....', '......OCcO......',
     '.......OO.......'];
   M.prosecco = [
-    '....OOOO....', '...OYYYYO...', '...OYYYyO...', '...OYYYyO...', '...OyyyyO...', '....OBbO....', '....OBbO....', '....OBbO....',
-    '...OBBbbO...', '..OBFBBbbO..', '.OBFBBBBbbO.', '.OBFBBBBbbO.', '.OPPPPPPPPO.', '.OPWWWWWWPO.', '.OPWPPPPWPO.', '.OPWWWWWWPO.',
-    '.OPPPPPPPPO.', '.OBFBBBBbbO.', '.OBBBBBBbbO.', '.OBBBBBBbbO.', '.ObbbbbbbbO.', '..OOOOOOOO..'];
-  M.bottleMini = ['..OO..', '.OYYO.', '..OO..', '..Bb..', '.OBbO.', 'OBFBbO', 'OPPPPO', 'OPWWPO', 'OBFBbO', 'OBBBbO', '.OOOO.'];
+    '........OOOO........', '.......OYYYYO.......', '.......OYLYyO.......', '.......OYYYyO.......', '.......OYYyyO.......',
+    '.OOOOOOOYYyyOOOOOOO.', 'OFFFFFFOrYYrOFFFFFFO', 'OFgFFgFOrYYrOFgFFgFO', 'OFFFFFFOrrrrOFFFFFFO', '.OOOOOOrrrrrrOOOOOO.',
+    '......OrrrqrrrO.....', '.....OrrqrrrrqrO....', '.....OrqrrFFrrrO....', '.....OrrrqrrrqrO....', '.....OPPPPPPPPPO....',
+    '.....OPWWWWWWWPO....', '.....OPPPPPPPPPO....', '.....OPWPYYYPWPO....', '.....OrqrrrrrqrO....', '.....ObbbbbbbbbO....',
+    '.....ObbbbbbbbbO....', '......OOOOOOOOO.....'];
+  M.bottleMini = ['..OO..', '.OYYO.', '..YY..', '.FrrF.', '.OrrO.', 'OrqrrO', 'OPPPPO', 'OPWWPO', 'OrrqrO', 'ObbbbO', '.OOOO.'];
   M.smoke = [
     '..............OOOOOO............', '...........OOOAAAAAAOO..........', '.....OOOO.OAAAaaAAAAAAO.........', '...OOAAAAOAAaaaaAAAAAAAOOOOO....',
     '..OAAaaAAAAAaaAAAAAAAAAOAAAAOO..', '.OAAaaaAAAAAAAAAADDAAAAAAaaAAAO.', '.OAAaaAAAAAAAAADDDDAAAAAaaaAAAO.', 'OAAAAAAANNAAAADDAANNAAAAAAAAAADO',

@@ -99,11 +99,13 @@
     { bg: '#FF2E88', fg: '#FFFFFF', bar: '#1A1033', barFg: '#3FF0FF' },
     { bg: '#3FF0FF', fg: '#1A1033', bar: '#1A1033', barFg: '#FFF36B' }
   ];
+  var GLAM = { bg: '#170A14', fg: '#FF9AD0', bar: '#FF2E88', barFg: '#FFFFFF', glam: true };
   function genMid(limit) {
     while (midNext < limit) {
       if (palmsSinceBoard >= 5) {
         var list = CONFIG.billboards;
-        mid.push({ kind: 'board', x: midNext, text: list[sloganIdx % list.length], style: BOARD_STYLES[sloganIdx % BOARD_STYLES.length], lines: null });
+        var entry = list[sloganIdx % list.length], isObj = typeof entry === 'object';
+        mid.push({ kind: 'board', x: midNext, text: isObj ? entry.text : entry, style: isObj && entry.style === 'glam' ? GLAM : BOARD_STYLES[sloganIdx % BOARD_STYLES.length], lines: null });
         sloganIdx++; palmsSinceBoard = 0;
         midNext += BOARD.w + 26 + Math.floor(rnd() * 20);
       } else {
@@ -203,7 +205,10 @@
     }
     if (!o.lines) o.lines = Font.wrap(o.text, bw - 27 - 12);
     var n = o.lines.length, y0 = top + 5 + Math.max(0, Math.floor((4 - n) * Font.LINE / 2));
-    for (i = 0; i < n; i++) Font.draw(ctx, o.lines[i], x + 5, y0 + i * Font.LINE, st.fg);
+    for (i = 0; i < n; i++) Font.draw(ctx, o.lines[i], x + 5, y0 + i * Font.LINE, st.glam && /DIAMONDSY/.test(o.lines[i]) ? '#FFFFFF' : st.fg);
+    if (st.glam) {   // brokat + diamenty na blacie, jak na billboardzie kampanii
+      for (i = 0; i < 9; i++) if ((i * 5 + Math.floor(t / 9)) % 4 === 0) { ctx.fillStyle = i % 2 ? '#FFFFFF' : '#FF9AD0'; ctx.fillRect(x + 6 + (i * 37) % 84, top + 3 + (i * 23) % 44, 1, 1); }
+    }
     Font.draw(ctx, CONFIG.landingLabel, x + 5, top + bh - 9, st.barFg);
     Font.draw(ctx, '>', x + 7 + Font.measure(CONFIG.landingLabel), top + bh - 9, st.barFg);
     // kod QR (1 px = 1 moduł, biały margines 2 px)

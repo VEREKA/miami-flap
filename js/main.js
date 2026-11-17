@@ -232,6 +232,8 @@
   $('ico-dollar').src = Sprites.dataUrl(Sprites.dollar, 4);
   $('ico-prosecco').src = Sprites.dataUrl(Sprites.prosecco, 4);
   $('ico-diamond').src = Sprites.dataUrl(Sprites.diamond, 4);
+  $('tagline').textContent = ''; CONFIG.tagline.forEach(function (l, i) { if (i) $('tagline').appendChild(document.createElement('br')); $('tagline').appendChild(document.createTextNode(l)); });
+  $('bottle-name').textContent = CONFIG.bottleName;
   $('prize-main').textContent = CONFIG.prizes.main;
   $('prize-side').textContent = CONFIG.prizes.side.join(', ').toLowerCase();
   $('over-prize').textContent = CONFIG.prizes.mainCta;

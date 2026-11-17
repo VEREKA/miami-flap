@@ -9,7 +9,7 @@ Gra przeglądarkowa typu „flappy” w klimacie Miami — reskin i rozbudowa [R
 | Element | Efekt |
 |---|---|
 | Dolar | +1 pkt |
-| Prosecco | +3 pkt, 3 butelki uruchamiają **Miami Mode** |
+| Butelka (Dolarsowo 0.0%) | +3 pkt, 3 butelki uruchamiają **Miami Mode** |
 | Diament | +5 pkt (leży tuż przy krawędzi dymu) |
 | Combo | zbieranie bez przerwy dłuższej niż 2 s: ×2 od 4. zbierajki, ×3 od 10. |
 | Miami Mode (6 s) | magnes na zbierajki, punkty ×2, jedna tarcza |
@@ -73,7 +73,7 @@ js/audio.js         muzyka i efekty generowane w WebAudio
 js/main.js          pętla gry, wejście, UI, kontrola uczciwości
 tools/              verify.js (weryfikacja wyniku), bot.js (test balansu), make_qr.py
 assets/svg/         sprite'y jako pliki SVG
-assets/fonts/       Press Start 2P, VT323 (licencja SIL OFL)
+assets/fonts/       Jersey 15, VT323 (licencja SIL OFL) — oba z pełnymi polskimi znakami
 ```
 
 ## Testy

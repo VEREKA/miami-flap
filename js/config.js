@@ -3,6 +3,8 @@ window.CONFIG = {
   title: 'MIAMI FLAP',                       // tytuł roboczy
   landingUrl: 'https://gamatis.com',         // dokąd prowadzi QR i przycisk CTA
   landingLabel: 'GAMATIS.COM',
+  tagline: ['Zgubiłam swoje diamondsy!', 'Pomożesz mi je znaleźć?'],   // ekran startowy
+  bottleName: 'Dolarsowo 0.0%',              // nazwa butelki w legendzie (produkt bezalkoholowy)
   // QR 21×21 (wersja 1, korekcja M) dla "HTTPS://GAMATIS.COM". Po zmianie adresu wygeneruj nowy: tools/make_qr.py
   qr: [
     '111111101111101111111',
@@ -34,6 +36,7 @@ window.CONFIG = {
   },
   // Billboardy w tle (mix łagodnych i ostrzejszych). Tekst wielkimi literami, zawijany automatycznie.
   billboards: [
+    { text: 'ZGUBIŁAM SWOJE DIAMONDSY! POMOŻESZ MI JE ZNALEŹĆ?', style: 'glam' },   // hasło z billboardu kampanii
     'MNIEJ DRAMY, WIĘCEJ MIAMI.',
     'PLOTKI NIE PŁACĄ RACHUNKÓW.',
     'DYM OPADA. DIAMENTY ZOSTAJĄ.',
