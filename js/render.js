@@ -213,12 +213,14 @@
       ctx.fillRect(x + 2 + i * 8, top - 2, 2, 2);
     }
     if (o.image) return;
-    if (!o.lines) o.lines = Font.wrap(o.text, bw - 27 - 12);
+    var hasQr = !!CONFIG.landingUrl;
+    if (!o.lines) o.lines = Font.wrap(o.text, hasQr ? bw - 27 - 12 : bw - 12);
     var n = o.lines.length, y0 = top + 7 + Math.max(0, Math.floor((5 - n) * Font.LINE / 2));
     for (i = 0; i < n; i++) Font.draw(ctx, o.lines[i], x + 5, y0 + i * Font.LINE, st.glam && /DIAMONDSY/.test(o.lines[i]) ? '#FFFFFF' : st.fg);
     if (st.glam) {   // brokat + diamenty na blacie, jak na billboardzie kampanii
       for (i = 0; i < 9; i++) if ((i * 5 + Math.floor(t / 9)) % 4 === 0) { ctx.fillStyle = i % 2 ? '#FFFFFF' : '#FF9AD0'; ctx.fillRect(x + 6 + (i * 37) % 84, top + 3 + (i * 23) % 44, 1, 1); }
     }
+    if (!hasQr) return;
     // kod QR (1 px = 1 moduł, biały margines 2 px)
     var q = CONFIG.qr, qs = q.length, qx = x + bw - qs - 6, qy = top + Math.floor((bh - qs) / 2);
     ctx.fillStyle = '#FFFFFF'; ctx.fillRect(qx - 2, qy - 2, qs + 4, qs + 4);

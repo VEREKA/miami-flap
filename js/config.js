@@ -1,11 +1,13 @@
 /* MIAMI FLAP — konfiguracja kampanii. Wszystko, co klient może chcieć zmienić bez dotykania kodu gry. */
 window.CONFIG = {
   title: 'MIAMI FLAP',                       // tytuł roboczy
-  landingUrl: 'https://gamatis.com',         // dokąd prowadzi QR i przycisk CTA
-  landingLabel: 'GAMATIS.COM',
+  // Adres strony kampanii. null = brak QR i linku w grze (do czasu, aż będzie gotowy landing page).
+  // Po ustawieniu adresu wróci QR na billboardach z hasłami i blok „Zeskanuj lub kliknij” na ekranie Game Over.
+  landingUrl: null,
+  landingLabel: null,
   tagline: ['Zgubiłam swoje diamondsy!', 'Pomożesz mi je znaleźć?'],   // ekran startowy
   bottleName: 'Dolarsowo 0.0%',              // nazwa butelki w legendzie (produkt bezalkoholowy)
-  // QR 21×21 (wersja 1, korekcja M) dla "HTTPS://GAMATIS.COM". Po zmianie adresu wygeneruj nowy: tools/make_qr.py
+  // Kod QR dla landingUrl — wygeneruj: python3 tools/make_qr.py HTTPS://ADRES.PL (poniżej przykładowy, nieużywany przy landingUrl: null)
   qr: [
     '111111101111101111111',
     '100000100110101000001',

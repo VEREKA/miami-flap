@@ -28,7 +28,7 @@ python3 -m http.server 8000     # i otwórz http://localhost:8000
 
 Tytuł, adres landing page'a, kod QR, nagrody, hasła na billboardach, nazwy etapów i skiny.
 Grafika kampanii na billboardach: `billboardImage` (plik 2:1, np. 630×315 px w `assets/img/`), pokazywana na co drugim billboardzie (`billboardImageEvery`).
-Nowy QR: `python3 tools/make_qr.py HTTPS://ADRES.PL` i wklej wynik do `qr`.
+Link i QR do strony kampanii są wyłączone (`landingUrl: null`). Po ustawieniu adresu wygeneruj QR: `python3 tools/make_qr.py HTTPS://ADRES.PL` i wklej wynik do `qr`.
 
 ## Osadzanie w iframe
 

@@ -245,7 +245,8 @@
   $('prize-main').textContent = CONFIG.prizes.main;
   $('prize-side').textContent = CONFIG.prizes.side.join(', ').toLowerCase();
   $('over-prize').textContent = CONFIG.prizes.mainCta;
-  $('qr-link').href = CONFIG.landingUrl; $('qr-label').textContent = CONFIG.landingLabel.toLowerCase();
+  $('qr-link').hidden = !CONFIG.landingUrl;
+  if (CONFIG.landingUrl) { $('qr-link').href = CONFIG.landingUrl; $('qr-label').textContent = (CONFIG.landingLabel || CONFIG.landingUrl).toLowerCase(); }
   document.title = CONFIG.title;
   (function drawQr() {
     var c = $('qr-canvas'), q = CONFIG.qr, x = c.getContext('2d');
