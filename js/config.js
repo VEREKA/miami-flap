@@ -34,9 +34,11 @@ window.CONFIG = {
     mainCta: 'wyjazd do Miami lub gotówkę',   // biernik: „powalcz o …”
     side: ['Czapki z daszkiem', 'Torebki na prosecco']
   },
-  // Billboardy w tle (mix łagodnych i ostrzejszych). Tekst wielkimi literami, zawijany automatycznie.
+  // Grafika kampanii na billboardach (proporcje 2:1). Pojawia się na co drugim billboardzie; null = same hasła.
+  billboardImage: 'assets/img/billboard.jpg',
+  billboardImageEvery: 2,
+  // Billboardy z hasłami (mix łagodnych i ostrzejszych). Tekst wielkimi literami, zawijany automatycznie.
   billboards: [
-    { text: 'ZGUBIŁAM SWOJE DIAMONDSY! POMOŻESZ MI JE ZNALEŹĆ?', style: 'glam' },   // hasło z billboardu kampanii
     'MNIEJ DRAMY, WIĘCEJ MIAMI.',
     'PLOTKI NIE PŁACĄ RACHUNKÓW.',
     'DYM OPADA. DIAMENTY ZOSTAJĄ.',

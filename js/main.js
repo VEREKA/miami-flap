@@ -14,7 +14,7 @@
   if (!CONFIG.skins.some(function (s) { return s.id === skin && s.stage <= maxStage; })) skin = 'classic';
 
   // ───────── stan ─────────
-  var state = 'menu', sim = null, tapQueued = false, last = 0, acc = 0, countdown = 0, dieTimer = 0, lastRun = null;
+  var state = 'menu', sim = null, prevY = 0, tapQueued = false, last = 0, acc = 0, countdown = 0, dieTimer = 0, lastRun = null;
   var integ = null;
 
   function newIntegrity() {
@@ -37,10 +37,11 @@
     var seed = params.has('seed') ? (+params.get('seed') >>> 0) : (crypto.getRandomValues(new Uint32Array(1))[0]);
     sim = Sim.create(seed);
     integ = newIntegrity();
-    acc = 0; state = 'playing'; tapQueued = true;
+    acc = 0; state = 'playing'; tapQueued = true; prevY = sim.y;
     show(null);
   }
   function stepOnce() {
+    prevY = sim.y;
     Sim.step(sim, tapQueued);
     tapQueued = false;
     for (var i = 0; i < sim.events.length; i++) {
@@ -137,12 +138,14 @@
       if (dieTimer <= 0) finishRun();
     }
     Render.draw(sim, {
+      alpha: state === 'playing' ? Math.min(1, acc / STEP_MS) : 1,
+      prevY: sim ? prevY : undefined,
       skin: skin,
       showPlayer: state === 'menu' || state === 'ready',
       ready: state === 'ready',
       hud: state === 'playing' || state === 'countdown' || state === 'paused' || state === 'dying',
       countdown: state === 'countdown' ? Math.ceil(countdown / 1000) : 0
-    });
+    }, dt);
   }
 
   // ───────── wejście ─────────
@@ -229,6 +232,11 @@
   // ───────── start ─────────
   Sprites.init();
   Render.init($('game'));
+  function fit() {
+    var px = $('stage').clientWidth * (window.devicePixelRatio || 1);
+    Render.setScale(Math.max(2, Math.min(6, Math.ceil(px / C.W))));
+  }
+  fit(); window.addEventListener('resize', fit);
   $('ico-dollar').src = Sprites.dataUrl(Sprites.dollar, 4);
   $('ico-prosecco').src = Sprites.dataUrl(Sprites.prosecco, 4);
   $('ico-diamond').src = Sprites.dataUrl(Sprites.diamond, 4);

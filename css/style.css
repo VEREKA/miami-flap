@@ -23,7 +23,7 @@ body {
   overflow: hidden; background: #2BB8F0;
   box-shadow: 0 0 0 1px rgba(255, 95, 210, .35), 0 0 60px rgba(255, 46, 136, .25);
 }
-#game { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 [hidden] { display: none !important; }
 
 .overlay {

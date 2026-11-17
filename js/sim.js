@@ -15,7 +15,7 @@
   'use strict';
 
   var C = {
-    VERSION: 1,
+    VERSION: 2,
     W: 216, H: 384, GROUND_Y: 344, STEP_HZ: 60,
 
     PLAYER_X: 56, PLAYER_R: 7, START_Y: 170,
@@ -98,8 +98,8 @@
     var stage = 1 + Math.floor(idx / C.GATES_PER_STAGE);
     var midX = (ax + x) / 2, midY = (ay + gapY) / 2;
 
-    if (r() < 0.82) {
-      var n = 3 + Math.floor(r() * 3);
+    if (r() < 0.55) {
+      var n = 2 + Math.floor(r() * 2);
       for (var k = 0; k < n; k++) {
         var t = (k + 1) / (n + 1);
         var e = t * t * (3 - 2 * t);
@@ -107,12 +107,12 @@
       }
     }
     var side = r() < 0.5 ? -1 : 1;
-    if (r() < 0.25) {
+    if (r() < 0.18) {
       // diament: tuż przy krawędzi dymu, w samej bramce
       s.items.push({ type: 'diamond', x: x, y: gapY + side * (C.GAP / 2 - 12), taken: false });
     }
     var pSide = r() < 0.5 ? -1 : 1;
-    var hasProsecco = r() < 0.30;
+    var hasProsecco = r() < 0.26;
     if (hasProsecco) {
       s.items.push({ type: 'prosecco', x: midX, y: clamp(Math.round(midY + pSide * C.PROSECCO_OFFSET), 22, C.GROUND_Y - 22), taken: false });
     }

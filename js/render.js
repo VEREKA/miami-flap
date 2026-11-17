@@ -3,7 +3,9 @@
   'use strict';
   var C = Sim.C, W = C.W, H = C.H, GY = C.GROUND_Y;
   var HORIZON = 262, SAND_Y = 306;
-  var ctx, t = 0, scroll = 0, lastDist = 0, lastSim = null;
+  var ctx, canvasEl, K = 1, t = 0, f = 1, lag = 0, flapT = -99, scroll = 0, lastDist = 0, lastSim = null, boardImg = null;
+  // przyciąganie do siatki pikseli ekranu (nie do grubych pikseli gry) — ruch jest płynny, bez skoków 1–2 px
+  function snap(v) { return Math.round(v * K) / K; }
   var particles = [], popups = [], banner = null, shake = 0, flash = 0;
   var rnd = Sim.makeRng(20261117);
 
@@ -53,7 +55,7 @@
 
   // ───────── elementy tła generowane raz ─────────
   var stars = [], skyline = [], SKY_TILE = 432, clouds = [];
-  var mid = [], midNext = 40, sloganIdx = 0, palmsSinceBoard = 0;
+  var mid = [], midNext = 40, sloganIdx = 0, boardCount = 0, palmsSinceBoard = 2;
 
   function genStatic() {
     var i;
@@ -92,7 +94,7 @@
     return px;
   }
 
-  var BOARD = { w: 126, h: 62, top: 236 };
+  var BOARD = { w: 126, h: 63, top: 235 };
   var BOARD_STYLES = [
     { bg: '#FFF36B', fg: '#D4147A', bar: '#D4147A', barFg: '#FFF36B' },
     { bg: '#FFFFFF', fg: '#1A1033', bar: '#FF2E88', barFg: '#FFFFFF' },
@@ -104,9 +106,14 @@
     while (midNext < limit) {
       if (palmsSinceBoard >= 5) {
         var list = CONFIG.billboards;
-        var entry = list[sloganIdx % list.length], isObj = typeof entry === 'object';
-        mid.push({ kind: 'board', x: midNext, text: isObj ? entry.text : entry, style: isObj && entry.style === 'glam' ? GLAM : BOARD_STYLES[sloganIdx % BOARD_STYLES.length], lines: null });
-        sloganIdx++; palmsSinceBoard = 0;
+        var every = CONFIG.billboardImage ? (CONFIG.billboardImageEvery || 2) : 0;
+        if (every && boardCount % every === 0) mid.push({ kind: 'board', x: midNext, image: true });
+        else {
+          var entry = list[sloganIdx % list.length], isObj = typeof entry === 'object';
+          mid.push({ kind: 'board', x: midNext, text: isObj ? entry.text : entry, style: isObj && entry.style === 'glam' ? GLAM : BOARD_STYLES[sloganIdx % BOARD_STYLES.length], lines: null });
+          sloganIdx++;
+        }
+        boardCount++; palmsSinceBoard = 0;
         midNext += BOARD.w + 26 + Math.floor(rnd() * 20);
       } else {
         var h = 38 + Math.floor(rnd() * 26);
@@ -147,14 +154,14 @@
     if (pal.cloud > 0.02) {
       ctx.globalAlpha = 0.85 * pal.cloud; ctx.fillStyle = '#FFFFFF';
       for (i = 0; i < clouds.length; i++) {
-        var c = clouds[i], x = Math.round(((c.x - scroll * 0.04) % 320 + 320) % 320) - 50, yy = Math.round(c.y);
+        var c = clouds[i], x = snap(((c.x - scroll * 0.04) % 320 + 320) % 320) - 50, yy = Math.round(c.y);
         ctx.fillRect(x, yy, c.w, 4); ctx.fillRect(x + 4, yy - 3, c.w - 12, 3); ctx.fillRect(x + 9, yy - 5, c.w - 24, 2); ctx.fillRect(x + 3, yy + 4, c.w - 8, 1);
       }
       ctx.globalAlpha = 1;
     }
   }
   function drawSkyline() {
-    var off = Math.floor(scroll * 0.12) % SKY_TILE;
+    var off = snap(scroll * 0.12) % SKY_TILE;
     for (var rep = 0; rep < 2; rep++) {
       for (var i = 0; i < skyline.length; i++) {
         var b = skyline[i], x = b.x - off + rep * SKY_TILE;
@@ -187,7 +194,7 @@
     ctx.fillStyle = pal.sand[0]; ctx.fillRect(0, SAND_Y, W, GY - SAND_Y);
     ctx.fillStyle = pal.sand[1];
     ctx.fillRect(0, SAND_Y, W, 1);
-    var so = Math.floor(scroll * 0.45) % 23;
+    var so = snap(scroll * 0.45) % 23;
     for (var sx = -so; sx < W; sx += 23) { ctx.fillRect(sx, SAND_Y + 9, 7, 1); ctx.fillRect(sx + 11, SAND_Y + 21, 5, 1); ctx.fillRect(sx + 4, SAND_Y + 31, 9, 1); }
   }
   function drawBoard(o, x) {
@@ -196,23 +203,24 @@
     ctx.fillRect(x + 16, top + bh, 4, 340 - top - bh); ctx.fillRect(x + bw - 20, top + bh, 4, 340 - top - bh);
     ctx.fillRect(x + 16, top + bh + 10, bw - 32, 2);
     ctx.fillRect(x - 2, top - 2, bw + 4, bh + 4);
-    ctx.fillStyle = st.bg; ctx.fillRect(x, top, bw, bh);
-    ctx.fillStyle = st.bar; ctx.fillRect(x, top + bh - 12, bw, 12);
+    if (o.image) {
+      if (boardImg && boardImg.complete && boardImg.naturalWidth) { ctx.imageSmoothingEnabled = true; ctx.drawImage(boardImg, x, top, bw, bh); ctx.imageSmoothingEnabled = false; }
+      else { ctx.fillStyle = '#170A14'; ctx.fillRect(x, top, bw, bh); }
+    } else { ctx.fillStyle = st.bg; ctx.fillRect(x, top, bw, bh); }
     // żarówki
     for (i = 0; i < 16; i++) {
       ctx.fillStyle = ((i + Math.floor(t / 14)) % 2) ? '#FFF36B' : '#FF5FD2';
       ctx.fillRect(x + 2 + i * 8, top - 2, 2, 2);
     }
+    if (o.image) return;
     if (!o.lines) o.lines = Font.wrap(o.text, bw - 27 - 12);
-    var n = o.lines.length, y0 = top + 5 + Math.max(0, Math.floor((4 - n) * Font.LINE / 2));
+    var n = o.lines.length, y0 = top + 7 + Math.max(0, Math.floor((5 - n) * Font.LINE / 2));
     for (i = 0; i < n; i++) Font.draw(ctx, o.lines[i], x + 5, y0 + i * Font.LINE, st.glam && /DIAMONDSY/.test(o.lines[i]) ? '#FFFFFF' : st.fg);
     if (st.glam) {   // brokat + diamenty na blacie, jak na billboardzie kampanii
       for (i = 0; i < 9; i++) if ((i * 5 + Math.floor(t / 9)) % 4 === 0) { ctx.fillStyle = i % 2 ? '#FFFFFF' : '#FF9AD0'; ctx.fillRect(x + 6 + (i * 37) % 84, top + 3 + (i * 23) % 44, 1, 1); }
     }
-    Font.draw(ctx, CONFIG.landingLabel, x + 5, top + bh - 9, st.barFg);
-    Font.draw(ctx, '>', x + 7 + Font.measure(CONFIG.landingLabel), top + bh - 9, st.barFg);
     // kod QR (1 px = 1 moduł, biały margines 2 px)
-    var q = CONFIG.qr, qs = q.length, qx = x + bw - qs - 6, qy = top + 5;
+    var q = CONFIG.qr, qs = q.length, qx = x + bw - qs - 6, qy = top + Math.floor((bh - qs) / 2);
     ctx.fillStyle = '#FFFFFF'; ctx.fillRect(qx - 2, qy - 2, qs + 4, qs + 4);
     ctx.fillStyle = '#000000';
     for (var r = 0; r < qs; r++) { var row = q[r], k = 0; while (k < qs) { if (row[k] === '1') { var e = k; while (e < qs && row[e] === '1') e++; ctx.fillRect(qx + k, qy + r, e - k, 1); k = e; } else k++; } }
@@ -222,7 +230,7 @@
     genMid(off + W + 200);
     while (mid.length && mid[0].x - off < -220) mid.shift();
     for (var i = 0; i < mid.length; i++) {
-      var o = mid[i], x = Math.round(o.x - off);
+      var o = mid[i], x = snap(o.x - off);
       if (x > W + 40) break;
       if (o.kind === 'board') drawBoard(o, x);
       else {
@@ -233,7 +241,7 @@
   }
   function drawGround() {
     ctx.fillStyle = pal.ground[0]; ctx.fillRect(0, GY, W, H - GY);
-    var off = Math.floor(scroll) % 24;
+    var off = snap(scroll) % 24;
     ctx.fillStyle = pal.ground[1];
     for (var x = -off - 24; x < W + 24; x += 24) {
       ctx.fillRect(x, GY + 5, 12, 6); ctx.fillRect(x + 12, GY + 11, 12, 6); ctx.fillRect(x, GY + 17, 12, 6); ctx.fillRect(x + 12, GY + 23, 12, 6); ctx.fillRect(x, GY + 29, 12, 6); ctx.fillRect(x + 12, GY + 35, 12, 6);
@@ -246,7 +254,7 @@
   // ───────── obiekty gry ─────────
   var OFFS = [3, -4, 2, -3, 4, -2];
   function drawGate(g) {
-    var gx = Math.round(g.x), top = g.gapY - C.GAP / 2, bot = g.gapY + C.GAP / 2, k, y, xo, n;
+    var gx = snap(g.x + lag), top = g.gapY - C.GAP / 2, bot = g.gapY + C.GAP / 2, k, y, xo, n;
     if (g.dead) ctx.globalAlpha = 0.22;
     n = Math.ceil((top + 20) / 14);
     for (k = n; k >= 1; k--) {
@@ -265,8 +273,8 @@
     ctx.globalAlpha = 1;
   }
   function drawItem(it) {
-    var sp = Sprites[it.type], bob = Math.round(Math.sin(t * 0.1 + it.x * 0.05) * 2);
-    var x = Math.round(it.x - sp.width / 2), y = Math.round(it.y - sp.height / 2) + bob;
+    var sp = Sprites[it.type], bob = snap(Math.sin(t * 0.07 + it.x * 0.05) * 1.5);
+    var x = snap(it.x + lag - sp.width / 2), y = Math.round(it.y - sp.height / 2) + bob;
     ctx.drawImage(sp, x, y);
     if (it.type !== 'dollar' && ((t + Math.floor(it.x)) % 40) < 8) {
       ctx.fillStyle = '#FFFFFF';
@@ -276,12 +284,12 @@
   }
   function drawPlayer(y, vy, view, sim) {
     var sk = Sprites.skins[view.skin] || Sprites.skins.classic;
-    var fr = (vy < -0.5 || (Math.floor(t / 9) % 2)) ? 1 : 0;
-    var ang = Math.max(-0.3, Math.min(0.6, vy * 0.11));
+    var fr = (sim && t - flapT < 9) ? 1 : 0;                      // klatka „wzlotu” tylko tuż po tapnięciu
+    var ang = sim ? Math.max(-0.22, Math.min(0.4, vy * 0.075)) : 0; // łagodne pochylenie
     var miami = sim && sim.miami > 0, inv = sim && sim.invuln > 0;
     if (inv && Math.floor(t / 3) % 2) return;
     ctx.save();
-    ctx.translate(C.PLAYER_X, Math.round(y));
+    ctx.translate(C.PLAYER_X, snap(y));
     ctx.rotate(ang);
     if (miami) {
       var ga = Math.floor(t / 6) % 2 ? sk.glowA[fr] : sk.glowB[fr], gb = Math.floor(t / 6) % 2 ? sk.glowB[fr] : sk.glowA[fr];
@@ -295,7 +303,7 @@
       for (var i = 0; i < 16; i++) {
         var a = i / 16 * 6.283 + t * 0.06;
         ctx.fillStyle = i % 2 ? '#3FF0FF' : '#FFFFFF';
-        ctx.fillRect(Math.round(C.PLAYER_X + Math.cos(a) * 17), Math.round(y + Math.sin(a) * 17), 2, 2);
+        ctx.fillRect(snap(C.PLAYER_X + Math.cos(a) * 17), snap(y + Math.sin(a) * 17), 2, 2);
       }
     }
   }
@@ -303,16 +311,16 @@
     var i, p;
     for (i = particles.length - 1; i >= 0; i--) {
       p = particles[i];
-      p.x += p.vx; p.y += p.vy; p.vy += p.g; p.life--;
+      p.x += p.vx * f; p.y += p.vy * f; p.vy += p.g * f; p.life -= f;
       if (p.life <= 0) { particles.splice(i, 1); continue; }
       ctx.globalAlpha = Math.min(1, p.life / 12);
       ctx.fillStyle = p.c;
-      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+      ctx.fillRect(snap(p.x), snap(p.y), p.s, p.s);
     }
     ctx.globalAlpha = 1;
     for (i = popups.length - 1; i >= 0; i--) {
       p = popups[i];
-      p.y -= 0.5; p.life--;
+      p.y -= 0.5 * f; p.life -= f;
       if (p.life <= 0) { popups.splice(i, 1); continue; }
       ctx.globalAlpha = Math.min(1, p.life / 10);
       Font.draw(ctx, p.text, p.x, p.y, p.c, { align: 0.5, outline: '#1A1033', scale: p.scale || 1 });
@@ -344,7 +352,7 @@
       ctx.globalAlpha = 1;
     }
     if (banner) {
-      banner.life--;
+      banner.life -= f;
       var a = Math.min(1, banner.life / 20, (banner.max - banner.life) / 10);
       ctx.globalAlpha = Math.max(0, a);
       // komunikaty na pasie promenady — nie zasłaniają pola gry
@@ -360,14 +368,20 @@
   var POP = { dollar: '#8BFFA9', diamond: '#BFF4FA', prosecco: '#FFD447' };
   var R = {
     init: function (canvas) {
-      ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      genStatic(); setTheme(0, true);
+      canvasEl = canvas; ctx = canvas.getContext('2d');
+      genStatic(); setTheme(0, true); R.setScale(1);
+      if (CONFIG.billboardImage) { boardImg = new Image(); boardImg.src = CONFIG.billboardImage; }
+    },
+    // k = ile pikseli ekranu przypada na 1 piksel gry (canvas ma rozdzielczość ekranu, grafika zostaje „pikselowa”)
+    setScale: function (k) {
+      K = k; canvasEl.width = W * k; canvasEl.height = H * k;
+      ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingEnabled = false;
     },
     reset: function () { particles.length = 0; popups.length = 0; banner = null; shake = 0; flash = 0; setTheme(0, false); },
     // zdarzenia z symulacji → efekty
     onEvent: function (e, sim) {
-      if (e.t === 'pickup') {
+      if (e.t === 'flap') flapT = t;
+      else if (e.t === 'pickup') {
         burst(e.x, e.y, e.type === 'dollar' ? 5 : 10, [POP[e.type], '#FFFFFF'], 1.6, 0.04);
         popups.push({ x: e.x, y: e.y - 8, text: '+' + e.pts, c: e.mult > 1 ? '#FFF36B' : '#FFFFFF', life: 36, scale: e.type === 'diamond' ? 2 : 1 });
       } else if (e.t === 'miamiStart') {
@@ -384,32 +398,38 @@
         burst(C.PLAYER_X, sim.y, 34, ['#F7D56A', '#FF74B4', '#FFFFFF', '#8E86A6'], 3.2, 0.09, 2); shake = 14; flash = 5;
       }
     },
-    draw: function (sim, view) {
-      t++;
+    // dtMs: czas od poprzedniej klatki (animacje nie zależą od odświeżania ekranu); view.alpha: ułamek kroku symulacji (interpolacja)
+    draw: function (sim, view, dtMs) {
+      f = Math.max(0, Math.min(3, (dtMs || 16.667) / 16.667));
+      t += f;
+      var alpha = view.alpha === undefined ? 1 : view.alpha;
+      lag = sim && sim.alive ? sim.speed * (1 - alpha) : 0;
       if (sim) { if (sim !== lastSim) { lastSim = sim; lastDist = sim.dist; } scroll += sim.dist - lastDist; lastDist = sim.dist; }
-      else scroll += 0.5;
-      if (themeK < 1) { themeK = Math.min(1, themeK + 1 / 150); buildPal(); }
+      else scroll += 0.5 * f;
+      scroll -= lag;
+      if (themeK < 1) { themeK = Math.min(1, themeK + f / 150); buildPal(); }
       ctx.save();
-      if (shake > 0) { ctx.translate(Math.round((Math.random() - 0.5) * shake * 0.6), Math.round((Math.random() - 0.5) * shake * 0.6)); shake--; }
+      if (shake > 0) { ctx.translate(Math.round((Math.random() - 0.5) * shake * 0.6), Math.round((Math.random() - 0.5) * shake * 0.6)); shake -= f; }
       drawSky(); drawSkyline(); drawOcean(); drawMid();
       var i;
       if (sim) {
         for (i = 0; i < sim.gates.length; i++) drawGate(sim.gates[i]);
-        for (i = 0; i < sim.bubbles.length; i++) { var b = sim.bubbles[i]; if (b.dead) ctx.globalAlpha = 0.2; ctx.drawImage(Sprites.gossip, Math.round(b.x) - 14, Math.round(b.y) - 8); ctx.globalAlpha = 1; }
+        for (i = 0; i < sim.bubbles.length; i++) { var b = sim.bubbles[i]; if (b.dead) ctx.globalAlpha = 0.2; ctx.drawImage(Sprites.gossip, snap(b.x + lag) - 14, snap(b.y) - 8); ctx.globalAlpha = 1; }
         for (i = 0; i < sim.items.length; i++) if (!sim.items[i].taken) drawItem(sim.items[i]);
       }
       drawGround();
-      if (sim) { if (sim.alive) drawPlayer(sim.y, sim.vy, view, sim); }
-      else if (view.showPlayer) drawPlayer(C.START_Y + Math.round(Math.sin(t * 0.08) * 5), 0, view, null);
+      if (sim) { if (sim.alive) drawPlayer(view.prevY === undefined ? sim.y : view.prevY + (sim.y - view.prevY) * alpha, sim.vy, view, sim); }
+      else if (view.showPlayer) drawPlayer(C.START_Y + Math.sin(t * 0.045) * 4, 0, view, null);   // spokojne unoszenie
       drawParticles();
       ctx.restore();
+      scroll += lag;
       if (sim && view.hud) drawHud(sim, view);
       if (view.ready) {
         Font.draw(ctx, 'TAPNIJ, ŻEBY LECIEĆ', W / 2, 232, '#FFFFFF', { align: 0.5, outline: '#1A1033' });
-        if (Math.floor(t / 20) % 2) Font.draw(ctx, 'SPACJA / KLIK / DOTYK', W / 2, 246, '#FFF36B', { align: 0.5, outline: '#1A1033' });
+        Font.draw(ctx, 'SPACJA / KLIK / DOTYK', W / 2, 246, '#FFF36B', { align: 0.5, outline: '#1A1033' });
       }
       if (view.countdown) Font.draw(ctx, String(view.countdown), W / 2, 150, '#FFF36B', { align: 0.5, scale: 5, outline: '#1A1033' });
-      if (flash > 0) { ctx.globalAlpha = flash / 8; ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; flash--; }
+      if (flash > 0) { ctx.globalAlpha = Math.min(1, flash / 8); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; flash -= f; }
     }
   };
   window.Render = R;
